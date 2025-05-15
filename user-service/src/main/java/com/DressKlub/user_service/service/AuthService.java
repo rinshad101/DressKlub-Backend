@@ -1,51 +1,43 @@
 package com.DressKlub.user_service.service;
 
-import com.DressKlub.user_service.model.User;
+import com.DressKlub.user_service.dto.AuthenticationResponse;
+import com.DressKlub.user_service.dto.RegisterRequest;
 import com.DressKlub.user_service.repository.UserRepository;
-import io.jsonwebtoken.Jwts;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import javax.crypto.SecretKey;
-import java.util.Date;
 
 @Service
 public class AuthService {
 
-    @Autowired
-    private UserRepository repository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
+    private final AuthenticationManager authenticationManager;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private SecretKey secretKey;
-
-    @Value("${jwt.expiration}")
-    private Long jwtExpiration;
-
-    public User register(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return repository.save(user);
+    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService, AuthenticationManager authenticationManager) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
+        this.authenticationManager = authenticationManager;
     }
 
-    public String login(String username, String password) {
-        User user = repository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("user not found"));
-        if (!passwordEncoder.matches(password, user.getPassword())){
-            throw new RuntimeException("Invalid password");
-        }
-        return generateJwtToken(user);
+    public AuthenticationResponse register(RegisterRequest request) {
+        User user = User.builder()
+                .username(request.getUsername())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .build();
+        userRepository.save(user);
+        String token = jwtService.generateToken(user);
+        return new AuthenticationResponse(token);
     }
 
-    private String generateJwtToken(User user) {
-        return Jwts.builder()
-                .subject(user.getUsername())
-                .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + jwtExpiration))
-                .signWith(secretKey)
-                .compact();
+    public AuthenticationResponse authenticate(AuthenticationRequest request) throws AuthenticationException {
+        Authentication auth = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+
+        User user = (User) auth.getPrincipal();
+        String token = jwtService.generateToken(user);
+        return new AuthenticationResponse(token);
     }
 }
