@@ -1,16 +1,14 @@
 package com.DressKlub.user_service.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-@Getter
-@AllArgsConstructor
+@Data
+@NoArgsConstructor
 public class AuthenticationResponse {
-
     private String accessToken;
 
     public AuthenticationResponse(String accessToken) {
+        this.accessToken = accessToken;
     }
-
 }
