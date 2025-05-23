@@ -1,15 +1,23 @@
 package com.dressKlub.cart_service.model;
 
-import jakarta.persistence.Table;
-import jdk.jfr.Enabled;
+import jakarta.persistence.*;
+import lombok.*;
 
 import java.util.List;
 
-@Enabled
-@Table(name = "cart")
+@Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Cart {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private Long userId;
-    private List<CartItem> cartItems;
+
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CartItem> items;
 }
