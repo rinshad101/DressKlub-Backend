@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/products")
@@ -29,7 +28,8 @@ public class ProductController {
         return productService.getProductById(id);
     }
 
-    public ResponseEntity<List<Product>> searchBy(
+    @GetMapping("/search")
+        public ResponseEntity<List<Product>> searchBy(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String category
     ){

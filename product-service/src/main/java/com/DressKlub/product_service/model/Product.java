@@ -19,6 +19,7 @@ public class Product {
 
     @ElementCollection
     private List<String> size;
+
     private double price;
     private String category;
 

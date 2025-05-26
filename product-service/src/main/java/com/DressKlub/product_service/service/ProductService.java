@@ -62,8 +62,8 @@ public class ProductService {
 
     public List<Product> searchBy(String name, String category) {
         if ("all".equalsIgnoreCase(name) || "all".equalsIgnoreCase(category)) return productRepository.findAll();
-        if (name != null) return productRepository.findByNameContainingIgnorCase(name);
-        if (category != null) return productRepository.findByCategoryContainingIgnorCase(category);
+        if (name != null) return productRepository.findByNameContainingIgnoreCase(name);
+        if (category != null) return productRepository.findByCategoryContainingIgnoreCase(category);
 
         return Collections.emptyList();
     }

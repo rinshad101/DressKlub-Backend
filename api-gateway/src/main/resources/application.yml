@@ -16,6 +16,7 @@ spring:
             uri: lb://product-service
             predicates:
               - Path=/api/products/**
+              - Path=/api/cart/**
 
 eureka:
   client:

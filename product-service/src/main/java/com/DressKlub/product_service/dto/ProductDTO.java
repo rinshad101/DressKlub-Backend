@@ -14,9 +14,14 @@ public class ProductDTO {
     private Long id;
 
     private String name;
+
+    @ElementCollection
     private List<String> size;
+
     private double price;
     private String category;
+
+    @ElementCollection
     private List<String> imageUrl;
 
     public ProductDTO() {
