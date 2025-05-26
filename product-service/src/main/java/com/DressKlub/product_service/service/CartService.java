@@ -3,6 +3,7 @@ package com.DressKlub.product_service.service;
 import com.DressKlub.product_service.model.Cart;
 import com.DressKlub.product_service.model.CartItems;
 import com.DressKlub.product_service.model.Product;
+import com.DressKlub.product_service.repository.CartItemRepository;
 import com.DressKlub.product_service.repository.CartRepository;
 import com.DressKlub.product_service.repository.ProductRepository;
 import org.springframework.stereotype.Service;
@@ -16,10 +17,12 @@ public class CartService {
 
     private final CartRepository cartRepository;
     private final ProductRepository productRepository;
+    private final CartItemRepository cartItemRepository;
 
-    public CartService(CartRepository cartRepository, ProductRepository productRepository) {
+    public CartService(CartRepository cartRepository, ProductRepository productRepository, CartItemRepository cartItemRepository) {
         this.cartRepository = cartRepository;
         this.productRepository = productRepository;
+        this.cartItemRepository = cartItemRepository;
     }
 
     public List<CartItems> getCartItemsByUserId(Long userId) {
@@ -42,6 +45,53 @@ public class CartService {
         }
         Product product = optionalProduct.get();
 
-        Optional<CartItems> optionalCartItems = cartRepository.find
+        Optional<CartItems> optionalCartItems = cartItemRepository.findByCartIdAndProductId(cart.getId(),productId);
+        if (optionalCartItems.isPresent()){
+            CartItems cartItems = optionalCartItems.get();
+            cartItems.setQuantity(cartItems.getQuantity() + quantity);
+            cartItemRepository.save(cartItems);
+        } else {
+            CartItems cartItems = new CartItems();
+            cartItems.setCart(cart);
+            cartItems.setQuantity(quantity);
+            cartItems.setProduct(product);
+            cartItemRepository.save(cartItems);
+        }
+        return cartRepository.save(cart);
+    }
+
+    public Cart removeFromCart(Long userId, Long productId) {
+        Optional<Cart> optionalCart = cartRepository.findByUserId(userId);
+        if (optionalCart.isPresent()){
+            Cart cart = optionalCart.get();
+            cart.getCartItems().removeIf(cartItems -> cartItems.getProduct().getId().equals(productId));
+            return cartRepository.save(cart);
+        }
+        return null;
+    }
+
+    public CartItems updateQuantity(Long userId, Long productId, int quantity) {
+        Cart cart = cartRepository.findByUserId(userId)
+                .orElseThrow(()-> new RuntimeException("cart not found for user id"));
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product Not Found"));
+
+        Optional<CartItems> optionalCartItems = cartItemRepository.findByCartIdAndProductId(cart.getId(),productId);
+
+        CartItems cartItems;
+        if (optionalCartItems.isPresent()){
+            cartItems = optionalCartItems.get();
+            cartItems.setQuantity(cartItems.getQuantity()+quantity);
+        } else {
+            cartItems = new CartItems(cart, product, quantity);
+        }
+        return cartItemRepository.save(cartItems);
+    }
+
+    public void clearCart(Long userId) {
+        Cart cart = cartRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("cart not found"));
+        cartItemRepository.deleteByCartId(cart.getId());
     }
 }

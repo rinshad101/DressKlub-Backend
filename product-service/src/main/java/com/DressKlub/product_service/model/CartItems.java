@@ -31,6 +31,10 @@ public class CartItems {
         this.quantity = quantity;
     }
 
+    public CartItems(Cart cart, Product product, int quantity) {
+    }
+
+
     public Cart getCart() {
         return cart;
     }
