@@ -6,22 +6,54 @@ spring:
     name: api-gateway
   cloud:
     gateway:
-      mvc:
-        routes:
-          - id: user-service
-            uri: lb://user-service
-            predicates:
-              - Path=/api/auth/**
-          - id: product-service
-            uri: lb://product-service
-            predicates:
-              - Path=/api/products/**
-          - id: order-service
-            uri: lb://order-service
-            predicates:
-              - Path=/api/order/**
+      routes:
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/api/auth/**
+        - id: user-admin-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/api/admin/users/**
+
+        - id: product-service
+          uri: lb://PRODUCT-SERVICE
+          predicates:
+            - Path=/api/products/**
+        - id: product-admin-service
+          uri: lb://PRODUCT-SERVICE
+          predicates:
+            - Path=/api/admin/products/**
+
+        - id: order-service
+          uri: lb://ORDER-SERVICE
+          predicates:
+            - Path=/api/orders/**
+        - id: order-admin-service
+          uri: lb://ORDER-SERVICE
+          predicates:
+            - Path=/api/admin/orders/**
 
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    gateway:
+      enabled: true
+
+logging:
+  level:
+    root: INFO
+    com:
+      DressKlub: DEBUG
+  file:
+    name: logs/app.log

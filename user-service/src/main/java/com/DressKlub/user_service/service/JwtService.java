@@ -1,7 +1,7 @@
 package com.DressKlub.user_service.service;
 
-
 import com.DressKlub.user_service.model.User;
+import io.github.cdimascio.dotenv.Dotenv;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -10,7 +10,6 @@ import io.jsonwebtoken.io.Encoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -22,9 +21,11 @@ import java.util.function.Function;
 @Component
 public class JwtService {
 
-    SecretKey key = Keys.secretKeyFor(io.jsonwebtoken.SignatureAlgorithm.HS256);
-    String base64url = Encoders.BASE64URL.encode(key.getEncoded());
-    private String SECRET_KEY = base64url ;
+    private final String SECRET_KEY;
+
+    public JwtService(Dotenv dotenv) {
+        this.SECRET_KEY = dotenv.get("JWT_SECRET_KEY");;
+    }
 
     public String generateToken(User user) {
         return Jwts.builder()
@@ -87,8 +88,6 @@ public class JwtService {
                 .getExpiration();
         return expiration.before(new Date());
     }
-
-
 
     public String extractToken(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
