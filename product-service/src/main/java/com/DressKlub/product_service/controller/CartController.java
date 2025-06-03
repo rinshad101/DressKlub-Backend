@@ -40,6 +40,7 @@ public class CartController {
         return ResponseEntity.ok(cartService.updateQuantity(userId,productId,quantity));
     }
 
+
     @DeleteMapping("/clear/{userId}")
     public ResponseEntity<Map<String, String>> clearCart(@PathVariable Long userId){
         cartService.clearCart(userId);

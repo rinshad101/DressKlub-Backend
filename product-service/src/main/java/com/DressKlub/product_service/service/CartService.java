@@ -6,6 +6,7 @@ import com.DressKlub.product_service.model.Product;
 import com.DressKlub.product_service.repository.CartItemRepository;
 import com.DressKlub.product_service.repository.CartRepository;
 import com.DressKlub.product_service.repository.ProductRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -89,6 +90,7 @@ public class CartService {
         return cartItemRepository.save(cartItems);
     }
 
+    @Transactional
     public void clearCart(Long userId) {
         Cart cart = cartRepository.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("cart not found"));
