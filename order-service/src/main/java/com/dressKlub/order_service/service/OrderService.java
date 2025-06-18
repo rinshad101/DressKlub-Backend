@@ -39,7 +39,7 @@ public class OrderService {
     }
 
     @Transactional
-    public Map<String, Object> placeOrder(Long userId, List<OrderItem> orderItems) {
+    public Map<String, Object> placeOrder(Long userId, List<OrderItemDTO> orderItems) {
         Order order = new Order();
         order.setUserId(userId);
         order.setOrderStatus("Processing");

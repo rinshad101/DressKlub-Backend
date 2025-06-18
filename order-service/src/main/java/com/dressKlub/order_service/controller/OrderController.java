@@ -1,6 +1,7 @@
 package com.dressKlub.order_service.controller;
 
 import com.dressKlub.order_service.dto.OrderDTO;
+import com.dressKlub.order_service.dto.OrderItemDTO;
 import com.dressKlub.order_service.model.OrderItem;
 import com.dressKlub.order_service.service.OrderService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -23,7 +24,7 @@ public class OrderController {
 
     @PostMapping("/place/{userId}")
     @CircuitBreaker(name = "productService", fallbackMethod = "fallBackResponse")
-    public Map<String, Object>placeOrder(@PathVariable Long userId, @RequestBody List<OrderItem> orderItems){
+    public Map<String, Object>placeOrder(@PathVariable Long userId, @RequestBody List<OrderItemDTO> orderItems){
         return orderService.placeOrder(userId, orderItems);
     }
 
