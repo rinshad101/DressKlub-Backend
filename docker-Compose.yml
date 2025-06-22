@@ -1,0 +1,143 @@
+#services:
+#  mysql:
+#    image: mysql:8
+#    container_name: mysql
+#    restart: always
+#    ports:
+#      - "3306:3306"
+#    environment:
+#      MYSQL_ROOT_PASSWORD: rinshad3657
+#    networks:
+#      - dressklub-network
+#
+#  service-registry:
+#    image: rinshad101/service-registry:v1
+#    ports:
+#      - "8761:8761"
+#    networks:
+#      - dressklub-network
+#    healthcheck:
+#      test: [ "CMD", "curl", "-f", "http://localhost:8761/actuator/health" ]
+#      interval: 30s
+#      timeout: 10s
+#      retries: 3
+#
+#
+#    user-service:
+#      image: rinshad101/user-service:v1
+#      ports:
+#        - "8081:8081"
+#      environment:
+#        - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/eureka
+#        - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/dressklub_userdb
+#        - SPRING_DATASOURCE_USERNAME=root
+#        - SPRING_DATASOURCE_PASSWORD=rinshad3657
+#        - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+#      depends_on:
+#        - mysql
+#      networks:
+#        - dressklub-network
+
+    #  product-service:
+    #    image: dressklub/product-service
+    #    ports:
+    #      - "8082:8082"
+    #    environment:
+    #      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/eureka
+    #      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/dressklub_productdb
+    #      - SPRING_DATASOURCE_USERNAME=root
+    #      - SPRING_DATASOURCE_PASSWORD=rinshad3657
+    #      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    #    depends_on:
+    #      service-registry:
+    #        condition: service_healthy
+    #    networks:
+    #      - dressklub-network
+
+
+    #  order-service:
+    #    image: dressklub/order-service
+    #    ports:
+    #      - "8084:8084"
+    #    environment:
+    #      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/eureka
+    #      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/dressklub_orderdb
+    #      - SPRING_DATASOURCE_USERNAME=root
+    #      - SPRING_DATASOURCE_PASSWORD=rinshad3657
+    #      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    #    depends_on:
+    #      service-registry:
+    #        condition: service_healthy
+    #    networks:
+    #      - dressklub-network
+    #
+    #  api-gateway:
+    #    image: dressklub/api-gateway
+    #    ports:
+    #      - "8080:8080"
+    #    environment:
+    #      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/eureka
+    #    depends_on:
+    #      service-registry:
+    #        condition: service_healthy
+    #    networks:
+    #      - dressklub-network
+
+    #networks:
+    #  dressklub-network:
+    #    driver: bridge
+
+
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8
+    container_name: mysql
+    restart: always
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: rinshad3657
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - dressklub-network
+
+  service-registry:
+    image: rinshad101/service-registry:v1
+    restart: always
+    ports:
+      - "8761:8761"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761/eureka"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - dressklub-network
+
+  user-service:
+    image: rinshad101/user-service:v2
+    restart: always
+    depends_on:
+      mysql:
+        condition: service_healthy
+      service-registry:
+        condition: service_healthy
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/dressklub_userdb
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: rinshad3657
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-registry:8761/eureka
+    networks:
+      - dressklub-network
+
+networks:
+  dressklub-network:
+    driver: bridge
